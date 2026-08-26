@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>servlet-assignment-war</artifactId>
+    <version>1.0</version>
+
+    <!--
+      DIFFERENCE 1 of 6 from the embedded project.
+
+      <packaging>war</packaging> instead of jar. This changes what `mvn package` produces:
+      not a jar of loose classes, but a WAR - a zip laid out in the exact structure a servlet
+      container knows how to read:
+
+        servlet-assignment.war
+          index.html
+          WEB-INF/web.xml
+          WEB-INF/classes/com/example/*.class
+          WEB-INF/lib/*.jar          (any NON-provided dependencies would land here)
+
+      A WAR is not runnable on its own. There is no main class and nothing to execute - it is
+      a bundle you hand to a server that already knows what to do with it.
+    -->
+    <packaging>war</packaging>
+
+    <properties>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <!--
+          DIFFERENCE 2 of 6, and the one that causes the most confusion.
+
+          The embedded project depended on tomcat-embed-core, which bundles BOTH the servlet
+          interfaces AND a whole server. Here we want only the interfaces - the server is
+          already installed and running.
+
+          <scope>provided</scope> means: "this is on the classpath when I COMPILE, but the
+          runtime environment already provides it, so do NOT package it."
+
+          Get this wrong and the WAR ships its own copy of jakarta.servlet.*. Tomcat then has
+          two copies of the same interfaces loaded by two different classloaders, and the JVM
+          treats them as unrelated types. The symptom is a ClassCastException insisting that
+          HttpServlet cannot be cast to HttpServlet, which reads like nonsense until you know
+          about this.
+        -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!--
+          DIFFERENCE 3 of 6: the WAR's FILENAME sets the URL.
+
+          Tomcat derives the "context path" from the WAR name. servlet-assignment.war deploys
+          at /servlet-assignment, so the calculator lives at
+
+              /servlet-assignment/calculate      not      /calculate
+
+          Rename the file and every URL in the app moves with it. The special name ROOT.war
+          means "no prefix" and would restore the embedded project's URLs exactly.
+
+          Without this finalName, Maven would name the file
+          servlet-assignment-war-1.0.war and the context path would include the version.
+        -->
+        <finalName>servlet-assignment</finalName>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <release>21</release>
+                </configuration>
+            </plugin>
+
+            <!-- Builds the WAR. Pinned because Maven 3.8 ships an older default. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>

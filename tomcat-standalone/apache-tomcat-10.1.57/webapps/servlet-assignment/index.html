@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Servlet Assignment (standalone WAR)</title>
+  <style>
+    body   { font-family: system-ui, sans-serif; max-width: 42rem;
+             margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+    h1     { margin-bottom: .25rem; }
+    h2     { margin-top: 2rem; }
+    form   { margin: 1rem 0; padding: 1rem; border: 1px solid #ddd;
+             border-radius: .5rem; }
+    label  { display: inline-block; margin-right: .75rem; }
+    input, select, button { font: inherit; padding: .35rem .5rem; }
+    button { cursor: pointer; }
+    code   { background: #f4f4f4; padding: .1rem .3rem; border-radius: .2rem; }
+    .hint  { color: #555; font-size: .9rem; }
+    .badge { display: inline-block; background: #0b5; color: #fff;
+             padding: .15rem .5rem; border-radius: .25rem;
+             font-size: .8rem; vertical-align: middle; }
+  </style>
+</head>
+<body>
+
+<h1>Servlet Assignment <span class="badge">standalone WAR</span></h1>
+<p class="hint">
+  Same Java code as the embedded project, deployed a completely different way:
+  packaged as <code>servlet-assignment.war</code>, dropped into a real Tomcat's
+  <code>webapps/</code>, mapped by <code>WEB-INF/web.xml</code>.
+</p>
+<p class="hint">
+  Look at the address bar. Everything now sits under <code>/servlet-assignment</code> &mdash;
+  that prefix is the <strong>context path</strong>, and it comes from the WAR's filename.
+</p>
+
+<h2>Q1 &mdash; Calculator <span class="hint">(validated by a filter)</span></h2>
+<!-- action is RELATIVE ("calculate", not "/calculate"). An absolute path would resolve to
+     localhost:8081/calculate, outside this context, and 404. Relative paths make the app
+     work under ANY context path without changes. -->
+<form method="get" action="calculate">
+  <label>a <input name="a" value="6" size="8"></label>
+  <label>
+    <select name="op">
+      <option>+</option>
+      <option>-</option>
+      <option selected>*</option>
+      <option>/</option>
+    </select>
+  </label>
+  <label>b <input name="b" value="3" size="8"></label>
+  <button type="submit">Calculate</button>
+</form>
+<p class="hint">
+  Break it to watch the filter reject the request before the servlet runs:
+  <a href="calculate?a=abc&amp;b=3&amp;op=*">a=abc</a> &middot;
+  <a href="calculate?a=6&amp;b=3&amp;op=%25">op=%</a> &middot;
+  <a href="calculate?a=6&amp;b=0&amp;op=/">divide by zero</a> &middot;
+  <a href="calculate?a=6&amp;op=*">missing b</a>
+</p>
+
+<h2>Q2 &mdash; Character count</h2>
+<form method="get" action="count">
+  <label>text <input name="text" value="hello world" size="30"></label>
+  <button type="submit">Count</button>
+</form>
+
+<h2>Seeing the JSON from a browser</h2>
+<p>
+  Append <code>&amp;format=json</code> to any URL:
+  <a href="calculate?a=6&amp;b=3&amp;op=*&amp;format=json">calculate?a=6&amp;b=3&amp;op=*&amp;format=json</a>
+</p>
+
+<h2>Compare the two deployments</h2>
+<p class="hint">
+  If the embedded project is also running on port 8080, the same request is
+  <code>localhost:8080/calculate?a=6&amp;b=3&amp;op=*</code> there and
+  <code>localhost:8081/servlet-assignment/calculate?a=6&amp;b=3&amp;op=*</code> here.
+  Identical responses, identical Java, two entirely different ways of getting a server.
+</p>
+
+</body>
+</html>

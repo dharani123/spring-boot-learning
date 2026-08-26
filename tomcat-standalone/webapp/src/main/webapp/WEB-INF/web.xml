@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  THE DEPLOYMENT DESCRIPTOR.
+
+  DIFFERENCE 4 of 6 from the embedded project. Everything the @WebServlet and @WebFilter
+  annotations used to say now lives here instead. The Java classes have no idea what URLs
+  they answer on - which is the point: mapping is a DEPLOYMENT decision, and this file lets
+  you change it without recompiling a single class.
+
+  Two things to notice about the structure:
+
+  1. Declaration and mapping are SEPARATE elements. <servlet> gives a class a name;
+     <servlet-mapping> attaches URLs to that name. That indirection lets one servlet answer
+     on several URL patterns, and lets you re-point a URL at a different class by editing
+     one line.
+
+  2. WEB-INF is invisible over HTTP. Nothing under it can ever be fetched by a browser -
+     the container blocks it absolutely. That is why config and compiled classes live here
+     and index.html does not.
+
+  version="6.0" matches Jakarta Servlet 6.0, which is what Tomcat 10.1 implements. Getting
+  this wrong is a classic Tomcat 9 -> 10 migration failure, because that is the release where
+  the whole API moved from javax.servlet to jakarta.servlet.
+-->
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+
+    <display-name>Servlet Assignment (standalone WAR)</display-name>
+
+    <!-- ============================================================================
+         Q1 - FILTER
+         Declared BEFORE the servlets on purpose. Filters run first, and when several
+         filters match one URL the container runs them in the order their
+         <filter-mapping> elements appear in this file. Annotations give you no such
+         control, which is the main reason larger projects keep using this descriptor.
+         ============================================================================ -->
+    <filter>
+        <filter-name>calculatorValidationFilter</filter-name>
+        <filter-class>com.example.CalculatorValidationFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>calculatorValidationFilter</filter-name>
+        <!-- Relative to the context path, so this really means
+             /servlet-assignment/calculate -->
+        <url-pattern>/calculate</url-pattern>
+    </filter-mapping>
+
+    <!-- ============================================================================
+         Q1 - CALCULATOR SERVLET
+         ============================================================================ -->
+    <servlet>
+        <servlet-name>calculatorServlet</servlet-name>
+        <servlet-class>com.example.CalculatorServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>calculatorServlet</servlet-name>
+        <url-pattern>/calculate</url-pattern>
+    </servlet-mapping>
+
+    <!-- ============================================================================
+         Q2 - CHARACTER COUNT SERVLET
+         ============================================================================ -->
+    <servlet>
+        <servlet-name>characterCountServlet</servlet-name>
+        <servlet-class>com.example.CharacterCountServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>characterCountServlet</servlet-name>
+        <url-pattern>/count</url-pattern>
+    </servlet-mapping>
+
+    <!-- ============================================================================
+         What to serve for the bare context root, /servlet-assignment/
+         ============================================================================ -->
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
+</web-app>

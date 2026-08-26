@@ -1,0 +1,9 @@
+# Maven build output
+target/
+
+# IDE
+.idea/
+*.iml
+
+# extracted library sources, for reading only
+reference-sources/

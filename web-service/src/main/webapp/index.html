@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hello Web Service</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 42rem;
+            margin: 3rem auto;
+            padding: 0 1.25rem;
+            line-height: 1.6;
+            color: #1a1a1a;
+        }
+        h1 { margin-bottom: 0.25rem; }
+        p.sub { margin-top: 0; color: #666; }
+        form {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1.5rem 0;
+        }
+        input {
+            flex: 1;
+            padding: 0.55rem 0.7rem;
+            font-size: 1rem;
+            border: 1px solid #bbb;
+            border-radius: 4px;
+        }
+        button {
+            padding: 0.55rem 1.1rem;
+            font-size: 1rem;
+            border: 0;
+            border-radius: 4px;
+            background: #1a1a1a;
+            color: #fff;
+            cursor: pointer;
+        }
+        code {
+            background: #f2f2f2;
+            padding: 0.1rem 0.35rem;
+            border-radius: 3px;
+        }
+        table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+        th, td { text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid #e5e5e5; }
+        th { color: #666; font-weight: 600; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<h1>Hello Web Service</h1>
+<p class="sub"><code>GET /hello/{name}</code> &rarr; <code>Hello "name"</code></p>
+
+<form onsubmit="event.preventDefault(); location.href='/hello/' + encodeURIComponent(name.value);">
+    <input id="name" name="name" value="World" placeholder="a name" autofocus>
+    <button type="submit">Say hello</button>
+</form>
+
+<p>The name is a <strong>path parameter</strong> &mdash; part of the URL itself, not a
+    <code>?query=string</code>. Leave it out and it defaults to <code>World</code>.</p>
+
+<table>
+    <tr><th>Request</th><th>Response</th></tr>
+    <tr><td><a href="/hello/World">/hello/World</a></td><td><code>Hello "World"</code></td></tr>
+    <tr><td><a href="/hello/José">/hello/José</a></td><td><code>Hello "José"</code></td></tr>
+    <tr><td><a href="/hello/">/hello/</a></td><td><code>Hello "World"</code> &mdash; defaulted</td></tr>
+    <tr><td><a href="/hello">/hello</a></td><td><code>Hello "World"</code> &mdash; defaulted</td></tr>
+    <tr><td><a href="/hello/a/b">/hello/a/b</a></td><td><code>Hello "a"</code> &mdash; first segment</td></tr>
+</table>
+
+<p>From a terminal:</p>
+<pre><code>curl http://localhost:8080/hello/World</code></pre>
+
+</body>
+</html>

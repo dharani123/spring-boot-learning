@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/worldcup
+    username: worldcup
+    password: worldcup
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+logging:
+  level:
+    # the SQL Hibernate generates
+    org.hibernate.SQL: debug
+    # the values bound to the ? placeholders
+    org.hibernate.orm.jdbc.bind: trace
